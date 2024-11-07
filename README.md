@@ -1,5 +1,8 @@
-# MB-Fit: Software infrastructure for data-driven many-body potential energy functions
+# This is the modified MB-Fit for internal use
 
+
+---
+Below are the original contents of README:
 [![Build Status](https://travis-ci.org/paesanilab/potential_fitting.svg?branch=master)](https://travis-ci.org/paesanilab/potential_fitting)
 
 MB-Fit is an integrated software infrastructure that enables the automated development of fully transferable, data-driven many-body potential energy functions (PEFs) for generic molecules within the TTM-nrg and MB-nrg theoretical/computational frameworks. 
