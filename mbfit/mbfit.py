@@ -1206,4 +1206,63 @@ def get_correlation_data(settings_path, fitting_code_dir_path, fits_path, traini
 
     return energies
 
+def get_correlation_data_noplot(settings_path, fitting_code_dir_path, fits_path, training_set,
+                         split_energy = None, 
+                         correlation_prefix = "correlation",
+                         correlation_directory = "correlation",
+                         ttm=False, over_ttm=False, nc_path = "mbnrg.nc",
+                         fitted_ttmnrg_params = "ttm-nrg_params.dat"):
+    """
+    Generates correltation data for the training/test set passed as argument
+    with no plot generated, only .dat file generated.
 
+    Args:
+        settings_path         - Local path to the file containing all relevent settings information.
+        fitting_code_dir_path - Local path to the directory containing the compiled fitcode.
+        fits_path             - Local path to folder containing the fits
+        training_set          - Configurations to evaluate. They need the binding energy and n-b energy in this order in the comment line.
+        split_energy          - If not None, will split the correlation plot in two sets, low and high, depending on the value of the variable.
+        min_energy_plot       - Lower bound of the energy in the plot
+        max_energy_plot       - Upper bound of the energy in the plot
+        correlation_prefix    - Prefix for the correlation files that will be generated.
+        correlation_directory - Directory where all the correlation files will be put.
+        minor_tick            - Interval of the minor ticks in the plot
+        colors                - List of two elements with the colors for low energy and high energy in the correlation plot
+        labels                - List of two elements with the x-axis and y-axis labels
+        ttm                   - True if these are ttm fits. False otherwise.
+        over_ttm              - Only used if ttm is False, if enabled, will fit polynomials over ttm.
+        nc_path               - Netcdf file with the parameters for the best fit.
+        fitted_ttmnrg_params  - Name of the output where the TTM-nrg params
+        max_1b                - Maximum deformation energy allowed in the plot (IE - BE)
+    """
+
+    # Get information
+    workdir = os.getcwd()
+    settings = SettingsReader(settings_path)
+    nb = len(settings.get("molecule","names").split(","))
+
+    corr_folder_prefix = os.path.join(workdir, correlation_directory)
+    if not os.path.exists(corr_folder_prefix):
+        os.mkdir(corr_folder_prefix)
+
+    if ttm:
+        path_to_eval = os.path.join(workdir, fitting_code_dir_path, "bin/eval-{}b-ttm".format(nb))
+        path_to_params = os.path.join(workdir, fits_path, "best_fit",fitted_ttmnrg_params)
+    elif over_ttm:
+        path_to_eval = os.path.join(workdir, fitting_code_dir_path, "bin/eval-{}b-over-ttm".format(nb))
+        path_to_params = os.path.join(workdir, fits_path, "best_fit", nc_path)
+    else:
+        path_to_eval = os.path.join(workdir, fitting_code_dir_path, "bin/eval-{}b".format(nb))
+        path_to_params = os.path.join(workdir, fits_path, "best_fit", nc_path)
+
+
+    eval_obj = fitting.Evaluator(settings, path_to_eval)
+
+    eval_obj.calculate_energies(path_to_params, training_set)
+
+    correlation_file = correlation_prefix + ".dat"
+    energies = eval_obj.write_correlation_file(correlation_file = correlation_file , split_energy = split_energy, max_1b = max_1b)
+
+    os.system("mv *" +  correlation_file + " " + corr_folder_prefix)
+
+    return energies
