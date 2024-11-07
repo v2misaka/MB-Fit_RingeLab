@@ -25,17 +25,17 @@ class FragmentSymmetryParser(object):
 
             for char in symmetry:
 
-                if char is '(':
+                if char == '(':
                     if num_open_parens > 0:
                         cur_fragment += char
                     num_open_parens += 1
 
-                elif char is ')':
+                elif char == ')':
                     num_open_parens -= 1
                     if num_open_parens > 0:
                         cur_fragment += char
 
-                elif char is '_' and num_open_parens == 0:
+                elif char == '_' and num_open_parens == 0:
                     self.sub_parsers.append(FragmentSymmetryParser(cur_fragment))
                     cur_fragment = ""
 
@@ -178,7 +178,7 @@ class MoleculeSymmetryParser(FragmentSymmetryParser):
         atoms = super(MoleculeSymmetryParser, self).get_atoms()
 
         for atom in atoms:
-            if atom[2] is "":
+            if atom[2] == "":
                 yield (atom[0], atom[1], 'a')
             else:
                 yield atom
@@ -297,17 +297,17 @@ class MoleculeInParser(object):
 
         for char in molecule_in:
 
-            if char is '(':
+            if char == '(':
                 if num_open_parens > 0:
                     cur_fragment += char
                 num_open_parens += 1
 
-            elif char is ')':
+            elif char == ')':
                 num_open_parens -= 1
                 if num_open_parens > 0:
                     cur_fragment += char
 
-            elif char is '_' and num_open_parens == 0:
+            elif char == '_' and num_open_parens == 0:
                 fragments.append(cur_fragment[:])
                 cur_fragment = ""
 
